@@ -1,4 +1,4 @@
-modelInfo <- list(label = "MDFA",
+modelInfo <- list(label = "mdfa",
                   library = NULL,
                   loop = NULL,
                   type = "Regression",
@@ -6,13 +6,13 @@ modelInfo <- list(label = "MDFA",
                                           class = "character",
                                           label = "parameter"),
                   grid = function(x, y, len = NULL, search = "grid") data.frame(parameter = "none"),
-                  fit = function(x, y, wts, param, lev, last, classProbs, ...) {
-                    dat <- if(is.data.frame(x)) x else as.data.frame(x)
+                  fit = function(x, y, param, lev, last, classProbs, ...) {
+                  dat <- if(is.data.frame(x)) x else as.data.frame(x)
 
-source("https://www.dropbox.com/s/j4cshlyclih2car/wrap.r?dl=1")
-source("https://www.dropbox.com/s/lkv8ww25mcu0uqg/imdfa.R?dl=1")
+
+                  source("https://www.dropbox.com/s/lkv8ww25mcu0uqg/imdfa.R?dl=1")
 ##length of vector
-len<-length(x[,1])
+len<-length(dat[,1])
 # Bandpass specification
 ub<-3
 lb<-550
@@ -22,11 +22,11 @@ Lag<--1
 # lin_expweight<-F replicates the traditional customization with expweight as the parameter - recommended -.
 # lin_expweight<-T replicates the stuff in section 6 of the trilemma paper with Tucker McElroy (paper can be downloaded from sefblog)
 lin_expweight<-F
-weight_constraint<-rep(1/(length(x[1,])-1),length(x[1,])-1)
+weight_constraint<-rep(1/(length(dat[1,])-1),length(dat[1,])-1)
 d<-0
 #--------------------------------------------------------
 # Compute DFT's (spectral matrix) and specify target bandpass filter
-spec_obj<-spec_comp(len,x,d)
+spec_obj<-spec_comp(len,dat,d)
 weight_func<-spec_obj$weight_func
 K<-length(weight_func[,1])-1
 # target symmetric bandpass filter
@@ -42,22 +42,12 @@ lambda_cross<-0
 i1<-F
 i2<-F
 plots=T
-
-
-
-
-
-
-
-
-
-       
-                    out <- i_mdfa_obj<-IMDFA_comp(Lag,K,L,lambda,weight_func,Gamma,expweight,cutoff,i1,i2,weight_constraint,lambda_cross,lambda_decay,lambda_smooth,x,plots,lin_expweight)
+                    out <-IMDFA_comp(Lag,K,L,lambda,weight_func,Gamma,expweight,cutoff,i1,i2,weight_constraint,lambda_cross,lambda_decay,lambda_smooth,x,plots,lin_expweight)
                     out
                   },
                   predict = function(modelFit, newdata, submodels = NULL) {
                     if(!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
-                    filter(modelFit, newdata)
+                    filter(modelFit$xff, newdata)
                     },
                   prob = NULL,
                   predictors = NULL,
